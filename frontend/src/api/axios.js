@@ -2,7 +2,9 @@ import axios from "axios";
 
 // Create axios instance with base URL from environment variable
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    "https://team-task-manager-c0o9.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -22,9 +24,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+      const isAuthPage = window.location.pathname === '/login' || 
+                         window.location.pathname === '/signup';
+      if (!isAuthPage) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },
